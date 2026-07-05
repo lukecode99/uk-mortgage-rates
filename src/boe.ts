@@ -54,7 +54,11 @@ export function parseBoeCsv(csv: string): Record<string, RatePoint[]> {
 }
 
 // URL the GitHub Actions ingest job fetches; kept here so tests pin the exact
-// query contract (max 300 series per request — we use 11).
+// query contract (max 300 series per request — we use 11). The /boeapps/iadb/
+// path is the one that serves CSV — it 302s to _iadb-FromShowColumns.asp
+// (follow redirects). The similarly-named /boeapps/database/fromshowcolumns.asp
+// returns the interactive HTML page regardless of csv.x, and VPD/VFD are
+// required — verified empirically 2026-07-05.
 export function buildCsvUrl(codes: string[], fromDdMonYyyy: string, toDdMonYyyy: string): string {
   const p = new URLSearchParams({
     'csv.x': 'yes',
@@ -63,6 +67,8 @@ export function buildCsvUrl(codes: string[], fromDdMonYyyy: string, toDdMonYyyy:
     SeriesCodes: codes.join(','),
     CSVF: 'TN',
     UsingCodes: 'Y',
+    VPD: 'Y',
+    VFD: 'N',
   });
-  return `https://www.bankofengland.co.uk/boeapps/database/fromshowcolumns.asp?${p.toString()}`;
+  return `https://www.bankofengland.co.uk/boeapps/iadb/fromshowcolumns.asp?${p.toString()}`;
 }

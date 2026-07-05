@@ -43,8 +43,8 @@ check('parseBoeDate passes ISO through', worker.parseBoeDate('2026-05-31') === '
 check(
   'buildCsvUrl pins the IADB query contract',
   worker.buildCsvUrl(['IUMBV34', 'IUDBEDR'], '01/Jan/2016', '05/Jul/2026') ===
-    'https://www.bankofengland.co.uk/boeapps/database/fromshowcolumns.asp?' +
-      'csv.x=yes&Datefrom=01%2FJan%2F2016&Dateto=05%2FJul%2F2026&SeriesCodes=IUMBV34%2CIUDBEDR&CSVF=TN&UsingCodes=Y',
+    'https://www.bankofengland.co.uk/boeapps/iadb/fromshowcolumns.asp?' +
+      'csv.x=yes&Datefrom=01%2FJan%2F2016&Dateto=05%2FJul%2F2026&SeriesCodes=IUMBV34%2CIUDBEDR&CSVF=TN&UsingCodes=Y&VPD=Y&VFD=N',
 );
 
 // --- fixtures in the IADB CSV shape -------------------------------------------
@@ -121,7 +121,7 @@ check('/rates/history missing param → 400', (await get('/rates/history')).stat
 const base = await (await get('/baserate')).json();
 check('/baserate serves the last observation', base.rate === 4.0 && base.asOf === '2026-07-03');
 check('/baserate effectiveDate is the change date', base.effectiveDate === '2026-06-18');
-check('/baserate next MPC from 2026-07-05 is 6 Aug', base.nextMpcDate === '2026-08-06');
+check('/baserate next MPC from 2026-07-05 is 30 Jul', base.nextMpcDate === '2026-07-30');
 check('/baserate lists the MPC calendar', Array.isArray(base.mpcDates) && base.mpcDates.length >= 8);
 check('/baserate attribution', base.attribution === ATTRIBUTION);
 
