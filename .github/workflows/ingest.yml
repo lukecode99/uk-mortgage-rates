@@ -1,0 +1,32 @@
+name: Ingest BoE rates
+
+# The Bank's IADB endpoint (Akamai) rejects datacentre egress IPs, so the
+# worker can't fetch it directly. This job fetches the CSVs from a GitHub
+# runner and pushes them into the worker's KV via /admin/ingest.
+#
+# Quoted rates publish on the 5th and 21st working day of the month; Bank Rate
+# changes only on MPC days. A weekday morning run covers both with slack.
+on:
+  schedule:
+    - cron: '45 7 * * 1-5' # 07:45 UTC, Mon–Fri
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - name: Fetch IADB CSVs and push to worker
+        env:
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: node scripts/ingest.mjs
+      - name: Verify the live API end to end
+        run: node scripts/check-live.mjs

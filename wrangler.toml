@@ -1,0 +1,14 @@
+name = "uk-mortgage-rates"
+main = "src/index.ts"
+compatibility_date = "2026-06-01"
+
+# No worker cron: the Bank's IADB endpoint 403s datacentre IPs, so ingest is
+# pushed in by a scheduled GitHub Actions job (.github/workflows/ingest.yml)
+# via POST /admin/ingest.
+
+[[kv_namespaces]]
+binding = "RATES_KV"
+id = "REPLACED_AT_DEPLOY" # set to the real namespace id before `wrangler deploy`; not a secret, kept out of git to avoid drift
+
+# Secrets (set with `wrangler secret put`, never committed):
+#   ADMIN_TOKEN — bearer token gating POST /admin/ingest
